@@ -21,7 +21,7 @@ var sensor_innen  = "c0:2c:ed:43:77:ff";
 //========== Schalt-Konfiguration ==========
 var taupunktschwelle   = 2;                  // [°C] Lüfter einschalten wenn TPinnen > (TPaussen + taupunktschwelle)...
 var mindesttemperatur  = 10;                 // [°C] ...und Tinnen > mindesttemperatur...
-var mindesthumi        = 70;                 // [%]  ...und RHinnen > mindesthumi
+var mindesthumi        = 50;                 // [%]  ...und RHinnen > mindesthumi
 var schaltzeit         = 180;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot
 var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
