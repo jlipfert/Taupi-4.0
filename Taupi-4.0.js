@@ -16,12 +16,12 @@
 //
 
 //========== Sensor-Konfiguration ==========
-var sensor_aussen = "7c:c6:b6:61:e8:11";
-var sensor_innen  = "7c:c6:b6:57:99:45";
+var sensor_aussen = "c0:2c:ed:43:74:ec";
+var sensor_innen  = "c0:2c:ed:43:77:ff";
 //========== Schalt-Konfiguration ==========
 var taupunktschwelle   = 2;                  // [°C] Lüfter einschalten wenn TPinnen > (TPaussen + taupunktschwelle)...
 var mindesttemperatur  = 10;                 // [°C] ...und Tinnen > mindesttemperatur...
-var mindesthumi        = 50;                 // [%]  ...und RHinnen > mindesthumi
+var mindesthumi        = 70;                 // [%]  ...und RHinnen > mindesthumi
 var schaltzeit         = 180;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot
 var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
@@ -318,33 +318,11 @@ function BLEScanCallback(event, result) {
 
 // Initializes the script and performs the necessary checks and configurations
 function initBLE() {
-  // Get the config of ble component
-  const BLEConfig = Shelly.getComponentConfig("ble");
-
-  // Exit if the BLE isn't enabled
-  if (!BLEConfig.enable) {
-    print("Error: The Bluetooth is not enabled, please enable it from settings");
-    return;
+  // Behebung: Scanner erzwingen
+  if (!BLE.Scanner.isRunning()) {
+    BLE.Scanner.Start({ duration_ms: BLE.Scanner.INFINITE_SCAN, active: false });
   }
-
-  // Check if the scanner is already running
-  if (BLE.Scanner.isRunning()) {
-    print("Info: The BLE gateway is running, the BLE scan configuration is managed by the device");
-  }
-  else {
-    // Start the scanner
-    const bleScanner = BLE.Scanner.Start({
-        duration_ms: BLE.Scanner.INFINITE_SCAN,
-        active: false  // Active scan means the scanner will ping back the Bluetooth device to receive all its data, but it will drain the battery faster
-    });
-
-    if(!bleScanner) {
-      print("Error: Can not start new scanner");
-    }
-  }
-
-  // Subscribe a callback to BLE scanner
   BLE.Scanner.Subscribe(BLEScanCallback);
+  print("Bluetooth-Scanner für Taupi initialisiert.");
 }
-
 initBLE();
