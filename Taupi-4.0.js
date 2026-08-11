@@ -57,7 +57,7 @@ function schalten() {
       typeof temperatur_innen === "undefined" ||
       typeof humidity_innen === "undefined")
   {
-    print("Nicht alle Sensorwerte vorhanden – Schaltung übersprungen.");
+    print("!!! Nicht alle Sensorwerte vorhanden – Schaltung übersprungen.");
     farbring(80,80,0,100);
     return;
   }
@@ -65,13 +65,13 @@ function schalten() {
 // Sicherheitsprüfung kommen regelmäßig frische Daten von den Sensoren?
   lost_connection_innen = lost_connection_innen + schaltzeit
   lost_connection_aussen = lost_connection_aussen + schaltzeit
-  print("letzte Verbindung zum Sensor innen vor " ,lost_connection_innen, " Sekunden "  );
-  print("letzte Verbindung zum Sensor außen vor " ,lost_connection_aussen, " Sekunden "  );
   
   if (lost_connection_innen > lost_connection ||
    lost_connection_aussen > lost_connection )
   {
-    print("Verbindung zu Sensoren zu lange verloren, Lüfter ausschalten.");
+    print("!!! letzte Verbindung zum Sensor innen vor " ,lost_connection_innen, " Sekunden "  );
+    print("!!! letzte Verbindung zum Sensor außen vor " ,lost_connection_aussen, " Sekunden "  );
+    print("!!! Verbindung zu Sensoren zu lange verloren, Lüfter ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });  
     farbring(80,80,0,100);
     return;
@@ -82,14 +82,13 @@ function schalten() {
 if (battery_innen < battery_warngrenze ||
    battery_aussen < battery_warngrenze)
   {
-    print("Batteriestand niedrig");
+    print("!!! Batteriestand niedrig");
     farbring(100,0,0,100);
    }
 
  // Schaltlogik (immer schalten, der Shelly schaltet nur, wenn er schalten muss).
   
     if ( temperatur_innen > mindesttemperatur &&
-      temperatur_innen > temperatur_aussen &&
       humidity_innen > mindesthumi &&
       taupunkt_innen > taupunkt_aussen + taupunktschwelle
     )
@@ -143,8 +142,6 @@ function checkBlu(event) {
 // Haupt-Timer für Steuerlogik
 Timer.set(schaltzeit * 1000, true, function () {
   print("----- Steuerung alle", schaltzeit, "s -----");
-  print("Innen: T =", temperatur_innen, "°C, RH =", humidity_innen, "%, Tp =", taupunkt_innen, "Batterie: ", battery_innen, " % ");
-  print("Außen: T =", temperatur_aussen, "°C, RH =", humidity_aussen, "%, Tp =", taupunkt_aussen, "Batterie: ", battery_aussen, " % ");
   schalten();
 });
 
@@ -250,7 +247,7 @@ const BTHomeDecoder = {
     while (buffer.length > 0) {
       _bth = BTH[buffer.at(0)];
       if (typeof _bth === "undefined") {
-        print("BTH: Unknown type");
+        print("!!! BTH: Unknown type");
         break;
       }
       buffer = buffer.slice(1);
@@ -301,7 +298,7 @@ function BLEScanCallback(event, result) {
   if (unpackedData === null ||
       typeof unpackedData === "undefined" ||
       unpackedData["encryption"]) {
-    print("Error: Encrypted devices are not supported");
+    print("!!! Error: Encrypted devices are not supported");
     return;
   }
 
