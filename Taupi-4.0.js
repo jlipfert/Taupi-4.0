@@ -89,6 +89,7 @@ if (battery_innen < battery_warngrenze ||
  // Schaltlogik (immer schalten, der Shelly schaltet nur, wenn er schalten muss).
   
     if ( temperatur_innen > mindesttemperatur &&
+      temperatur_innen > temperatur_aussen &&
       humidity_innen > mindesthumi &&
       taupunkt_innen > taupunkt_aussen + taupunktschwelle
     )
