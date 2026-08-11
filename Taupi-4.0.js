@@ -27,6 +27,7 @@ var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unte
 var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
 var virtcomp_innen = 200;                   // Nummer der virtuellen Komponente für den Innen-Sensor zur Anzeige des Taupunkts im Dashboard
 var virtcomp_aussen = 201;                  // Nummer der virtuellen Komponente für den Aussen-Sensor zur Anzeige des Taupunkts im Dashboard
+var virtcomp_luefterstatus = 200;            // Nummer der virtuellen Komponente für die Anzeige des Lüfterstatus im Dashboard
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
 
@@ -98,11 +99,15 @@ if (battery_innen < battery_warngrenze ||
     print("Lüfter einschalten");
     Shelly.call("Switch.Set", { id: 0, on: true });
     farbring(80,10,0,100);
+    let taupunktAktorLuefterstatus = Virtual.getHandle("boolean:" + virtcomp_luefterstatus);
+    taupunktAktorLuefterstatus.setValue(true);
   
   } else {
     print("Lüfter ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });
     farbring(0,0,80,100); 
+    let taupunktAktorLuefterstatus = Virtual.getHandle("boolean:" + virtcomp_luefterstatus);
+    taupunktAktorLuefterstatus.setValue(true);
   }
 
 }
