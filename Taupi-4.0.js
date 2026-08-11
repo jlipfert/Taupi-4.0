@@ -25,6 +25,8 @@ var mindesthumi        = 50;                 // [%]  ...und RHinnen > mindesthum
 var schaltzeit         = 180;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot
 var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
+var virtcomp_innen = 200;                   // Nummer der virtuellen Komponente für den Innen-Sensor zur Anzeige des Taupunkts im Dashboard
+var virtcomp_aussen = 201;                  // Nummer der virtuellen Komponente für den Aussen-Sensor zur Anzeige des Taupunkts im Dashboard
 //===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
 
@@ -129,6 +131,8 @@ function checkBlu(event) {
     battery_aussen     =  event.battery;
     lost_connection_aussen = 0
     print("Neue Werte für Außen:", temperatur_aussen, "°C,", humidity_aussen, "%, Tp:", taupunkt_aussen, "°C, Batt: ", battery_aussen, " % ");
+    let taupunktAktorAussen = Virtual.getHandle("number:" + virtcomp_aussen);
+    taupunktAktorAussen.setValue(Math.round(taupunkt_aussen * 10) / 10);
   } else if (event.address === sensor_innen) {
     temperatur_innen = event.temperature;
     humidity_innen   = event.humidity;
@@ -136,6 +140,8 @@ function checkBlu(event) {
     battery_innen     =  event.battery;
     lost_connection_innen = 0
     print("Neue Werte für Innen:", temperatur_innen, "°C,", humidity_innen, "%, Tp:", taupunkt_innen, "°C, Batt: " , battery_innen, " % ");
+    let taupunktAktorInnen = Virtual.getHandle("number:" + virtcomp_innen);
+    taupunktAktorInnen.setValue(Math.round(taupunkt_innen * 10) / 10);
   }
 }
 
