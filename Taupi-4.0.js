@@ -19,7 +19,8 @@
 var sensor_aussen = "c0:2c:ed:43:74:ec";
 var sensor_innen  = "c0:2c:ed:43:77:ff";
 //========== Schalt-Konfiguration ==========
-var taupunktschwelle   = 2;                  // [°C] Lüfter einschalten wenn TPinnen > (TPaussen + taupunktschwelle)...
+var taupunktschwelle   = 5;                  // [°C] Lüfter einschalten wenn TPinnen > (TPaussen + taupunktschwelle)...
+var hysterese          = 3;                  // [°C] Abschaltung Lüfter wenn TPinnen > (TPaussen + taupunktschwelle - hysterese)...
 var mindesttemperatur  = 10;                 // [°C] ...und Tinnen > mindesttemperatur...
 var mindesthumi        = 50;                 // [%]  ...und RHinnen > mindesthumi
 var schaltzeit         = 180;                 // [s]  Schaltbedingung prüfen alle X Sekunden
@@ -42,7 +43,7 @@ var battery_aussen;
 var lost_connection_innen;
 var lost_connection_aussen;
 
-var luefterstatus = null;  // Merkt sich letzten Schaltzustand, um unnötige Schaltvorgänge zu vermeiden
+var luefterstatus = false;  // Merkt sich letzten Schaltzustand
 
 // Taupunktberechnung
 function taupunkt(T, RH) {
@@ -89,25 +90,27 @@ if (battery_innen < battery_warngrenze ||
     farbring(100,0,0,100);
    }
 
- // Schaltlogik (immer schalten, der Shelly schaltet nur, wenn er schalten muss).
+// Schaltlogik (immer schalten, der Shelly schaltet nur, wenn er schalten muss).
   
-    if ( temperatur_innen > mindesttemperatur &&
-      humidity_innen > mindesthumi &&
-      taupunkt_innen > taupunkt_aussen + taupunktschwelle
-    )
+if ( temperatur_innen > mindesttemperatur &&
+     humidity_innen > mindesthumi &&
+     ((luefterstatus == false && taupunkt_innen > taupunkt_aussen + taupunktschwelle) ||
+      (luefterstatus == true && taupunkt_innen > taupunkt_aussen + taupunktschwelle - hysterese)))
   {
     print("Lüfter einschalten");
     Shelly.call("Switch.Set", { id: 0, on: true });
     farbring(80,10,0,100);
     let taupunktAktorLuefterstatus = Virtual.getHandle("boolean:" + virtcomp_luefterstatus);
     taupunktAktorLuefterstatus.setValue(true);
+    luefterstatus = true
   
   } else {
     print("Lüfter ausschalten.");
     Shelly.call("Switch.Set", { id: 0, on: false });
     farbring(0,0,80,100); 
     let taupunktAktorLuefterstatus = Virtual.getHandle("boolean:" + virtcomp_luefterstatus);
-    taupunktAktorLuefterstatus.setValue(true);
+    taupunktAktorLuefterstatus.setValue(false);
+    luefterstatus = false
   }
 
 }
