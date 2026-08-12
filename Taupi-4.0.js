@@ -21,7 +21,8 @@ var sensor_innen  = "c0:2c:ed:43:77:ff";
 //========== Schalt-Konfiguration ==========
 var taupunktschwelle   = 5;                  // [°C] Lüfter einschalten wenn TPinnen > (TPaussen + taupunktschwelle)...
 var hysterese          = 3;                  // [°C] Abschaltung Lüfter wenn TPinnen > (TPaussen + taupunktschwelle - hysterese)...
-var mindesttemperatur  = 10;                 // [°C] ...und Tinnen > mindesttemperatur...
+var mindesttemperatur  = 15;                 // [°C] ...und Tinnen > mindesttemperatur...
+var hoechsttemperatur  = 23;                 // [°C] ...und Tinnen < hoechsttemperatur...
 var mindesthumi        = 50;                 // [%]  ...und RHinnen > mindesthumi
 var schaltzeit         = 180;                 // [s]  Schaltbedingung prüfen alle X Sekunden
 var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot
@@ -93,6 +94,7 @@ if (battery_innen < battery_warngrenze ||
 // Schaltlogik (immer schalten, der Shelly schaltet nur, wenn er schalten muss).
   
 if ( temperatur_innen > mindesttemperatur &&
+     temperatur_innen < hoechsttemperatur &&
      humidity_innen > mindesthumi &&
      ((luefterstatus == false && taupunkt_innen > taupunkt_aussen + taupunktschwelle) ||
       (luefterstatus == true && taupunkt_innen > taupunkt_aussen + taupunktschwelle - hysterese)))
