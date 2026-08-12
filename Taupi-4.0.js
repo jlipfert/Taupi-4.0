@@ -14,24 +14,28 @@
 // Die nachfolgenden Zeilen müssen angepasst werden, mindestens die MAC-Adressen für "sensor_aussen" und "sensor_innen".
 // Die Schaltkonfiguration kann bei Bedarf angepasst werden.
 //
+//
+// Optimierungen durch jlipfert
+// - Schalt-Hysterese konfigurierbar gegen zu häufiges Takten
+// - max. Außen-Temperatur konfigurierbar
+// - Taupunkte und Lüfterstatus als Wert an virtuelle Komponente übergeben, damit diese im Dashboard ausgewertet werden können 
 
 //========== Sensor-Konfiguration ==========
 var sensor_aussen = "c0:2c:ed:43:74:ec";
 var sensor_innen  = "c0:2c:ed:43:77:ff";
+var virtcomp_innen = 200;                    // Nummer der virtuellen Komponente für den Innen-Sensor zur Anzeige des Taupunkts im Dashboard
+var virtcomp_aussen = 201;                   // Nummer der virtuellen Komponente für den Aussen-Sensor zur Anzeige des Taupunkts im Dashboard
+var virtcomp_luefterstatus = 200;            // Nummer der virtuellen Komponente für die Anzeige des Lüfterstatus im Dashboard
 //========== Schalt-Konfiguration ==========
 var taupunktschwelle   = 5;                  // [°C] Lüfter einschalten wenn TPinnen > (TPaussen + taupunktschwelle)...
 var hysterese          = 3;                  // [°C] Abschaltung Lüfter wenn TPinnen > (TPaussen + taupunktschwelle - hysterese)...
 var mindesttemperatur  = 15;                 // [°C] ...und Tinnen > mindesttemperatur...
 var hoechsttemperatur  = 20;                 // [°C] ...und Taussen < hoechsttemperatur...
 var mindesthumi        = 45;                 // [%]  ...und RHinnen > mindesthumi
-var schaltzeit         = 180;                 // [s]  Schaltbedingung prüfen alle X Sekunden
+var schaltzeit         = 180;                // [s]  Schaltbedingung prüfen alle X Sekunden
 var battery_warngrenze = 20;                 // [%] wenn dieser Schwellwert unterschritten ist blinkt der Plug rot
-var lost_connection = 600;                  // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
-var virtcomp_innen = 200;                   // Nummer der virtuellen Komponente für den Innen-Sensor zur Anzeige des Taupunkts im Dashboard
-var virtcomp_aussen = 201;                  // Nummer der virtuellen Komponente für den Aussen-Sensor zur Anzeige des Taupunkts im Dashboard
-var virtcomp_luefterstatus = 200;            // Nummer der virtuellen Komponente für die Anzeige des Lüfterstatus im Dashboard
-//===== Ende Sensor-Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
-
+var lost_connection = 600;                   // [s] Zeit nach der frische Sensordaten gekommen sein müssen um tote Verbindungen zu finden
+//===== Ende Konfiguration === AB HIER MUSS NICHTS MEHR GEÄNDERT WERDEN =====================================
 
 var taupunkt_aussen;
 var taupunkt_innen;
@@ -77,9 +81,12 @@ function schalten() {
     print("!!! letzte Verbindung zum Sensor innen vor " ,lost_connection_innen, " Sekunden "  );
     print("!!! letzte Verbindung zum Sensor außen vor " ,lost_connection_aussen, " Sekunden "  );
     print("!!! Verbindung zu Sensoren zu lange verloren, Lüfter ausschalten.");
-    Shelly.call("Switch.Set", { id: 0, on: false });  
+    Shelly.call("Switch.Set", { id: 0, on: false });
+    let taupunktAktorLuefterstatus = Virtual.getHandle("boolean:" + virtcomp_luefterstatus);
+    taupunktAktorLuefterstatus.setValue(false);
+    luefterstatus = false
     farbring(80,80,0,100);
-    return;
+    // return;
    }
   
   
